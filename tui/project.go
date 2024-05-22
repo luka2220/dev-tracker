@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -55,7 +54,7 @@ func (d itemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
 
 // NOTE:
 // Initializes the based project tui model
-func InititProject() (tea.Model, tea.Cmd) {
+func InitProject() (tea.Model, tea.Cmd) {
 	width, height := 20, 14
 	items := []list.Item{
 		item("Add"),
@@ -67,15 +66,7 @@ func InititProject() (tea.Model, tea.Cmd) {
 	l := list.New(items, itemDelegate{}, width, height)
 	l.Title = "Select an operation"
 
-	// Defining a text input component
-	ti := textinput.New()
-	// ti.Focus()
-	ti.Prompt = "> "
-	ti.Placeholder = "Prompt..."
-	ti.CharLimit = 250
-	ti.Width = 50
-
-	m := Model{session: nav, input: ti, options: l}
+	m := Model{session: nav, options: l}
 
 	return m, nil
 }
@@ -84,9 +75,10 @@ type mode int
 
 type Model struct {
 	session  mode
-	input    textinput.Model
 	options  list.Model
 	selected string
+	chosen   bool
+	quitting bool
 }
 
 func initModel() *Model {
@@ -102,44 +94,64 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
+			m.quitting = true
 			return m, tea.Quit
 		}
 	}
 
+	if m.chosen {
+		tableUpdateLoop(msg, m)
+	}
+
+	return menuUpdateLoop(msg, m)
+}
+
+func (m Model) View() string {
+	var s string
+
+	if m.chosen {
+		s = tableView(m)
+	} else {
+		s = menuView(m)
+	}
+
+	if m.quitting {
+		s = "\nSee you next time!!\n\n"
+	}
+
+	return s
+}
+
+// Main menu view update loop
+func menuUpdateLoop(msg tea.Msg, m Model) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "enter":
+			i, ok := m.options.SelectedItem().(item)
+			if ok {
+				m.selected = string(i)
+				m.chosen = true
+			}
+		}
+	}
+
 	var cmd tea.Cmd
-	m.input, cmd = m.input.Update(msg)
 	m.options, cmd = m.options.Update(msg)
 
 	return m, cmd
 }
 
-func (m Model) View() string {
-	s := "Task Operations\n"
+// Table view update loop
+func tableUpdateLoop(_ tea.Msg, m Model) (tea.Model, tea.Cmd) {
+	return m, nil
+}
 
-	var titleStyle = lipgloss.NewStyle().
-		SetString(s).
-		Bold(true).
-		Foreground(mainFGC)
-
-	cmd := "To quit: ctrl+c/q"
-	var commandsStyle = lipgloss.NewStyle().
-		SetString(cmd).
-		Bold(true).
-		Italic(true).
-		Foreground(mainFGC)
-
-	var promptStyle = lipgloss.NewStyle().
-		SetString(m.input.View()).
-		Bold(true).
-		Foreground(promptFGC)
-
-	titleRendered := titleStyle.Render()
-	commandRendered := commandsStyle.Render() + "\n"
-	promptRendered := promptStyle.Render()
-
-	if m.input.Focused() {
-		return lipgloss.JoinVertical(lipgloss.Top, titleRendered, commandRendered, promptRendered)
-	}
-
+func menuView(m Model) string {
 	return m.options.View()
+}
+
+func tableView(_ Model) string {
+	s := "\nInside the table view!!!!\n\n"
+	return s
 }
