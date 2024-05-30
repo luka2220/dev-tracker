@@ -3,11 +3,13 @@ package tui
 import (
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/luka2220/dev-tracker/constants"
 )
 
 /* STYLES */
@@ -25,16 +27,16 @@ const (
 
 // NOTE:
 // The value that is being filtered when filtering though the list
-type item string
+type MenuItem string
 
-func (i item) FilterValue() string { return "" }
+func (i MenuItem) FilterValue() string { return "" }
 
 type itemDelegate struct{}
 
 func (d itemDelegate) Height() int  { return 1 }
 func (d itemDelegate) Spacing() int { return 0 }
 func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
-	i, ok := listItem.(item)
+	i, ok := listItem.(MenuItem)
 	if !ok {
 		return
 	}
@@ -54,42 +56,49 @@ func (d itemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
 
 // NOTE:
 // Initializes the based project tui model
-func InitProject() (tea.Model, tea.Cmd) {
+func StartMenu() {
 	width, height := 20, 14
 	items := []list.Item{
-		item("Add"),
-		item("View"),
-		item("Edit"),
+		MenuItem("Add"),
+		MenuItem("View"),
+		MenuItem("Edit"),
 	}
 
 	// Create the list
 	l := list.New(items, itemDelegate{}, width, height)
 	l.Title = "Select an operation"
 
-	m := Model{session: nav, options: l}
+	m := MainModel{session: nav, Options: l}
 
-	return m, nil
+	p := tea.NewProgram(m, tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		constants.Logger.WriteString(fmt.Sprintf("Unable to start CLI: %v", err))
+		os.Exit(1)
+	}
 }
 
 type mode int
 
-type Model struct {
+type MainModel struct {
 	session  mode
-	options  list.Model
-	selected string
-	chosen   bool
+	Options  list.Model
+	Selected string
+	Chosen   bool
 	quitting bool
 }
 
-func initModel() *Model {
-	return &Model{}
+func initModel() *MainModel {
+	return &MainModel{}
 }
 
-func (m Model) Init() tea.Cmd {
+func (m MainModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+// NOTE:
+// Main update loop
+// Executes a different update listerner depending on the state of the model
+func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -99,59 +108,45 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	if m.chosen {
-		tableUpdateLoop(msg, m)
+	if m.Chosen {
+		StartTableView()
 	}
 
 	return menuUpdateLoop(msg, m)
 }
 
-func (m Model) View() string {
+// NOTE:
+// Main Bubbletea View
+// Renders different subviews based on the models state
+func (m MainModel) View() string {
 	var s string
 
-	if m.chosen {
-		s = tableView(m)
-	} else {
-		s = menuView(m)
+	if m.quitting {
+		return "\nSee you next time!!\n\n"
 	}
 
-	if m.quitting {
-		s = "\nSee you next time!!\n\n"
-	}
+	s = m.Options.View()
 
 	return s
 }
 
-// Main menu view update loop
-func menuUpdateLoop(msg tea.Msg, m Model) (tea.Model, tea.Cmd) {
+// NOTE:
+// Main menu sub-view update loop
+func menuUpdateLoop(msg tea.Msg, m MainModel) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "enter":
-			i, ok := m.options.SelectedItem().(item)
+			i, ok := m.Options.SelectedItem().(MenuItem)
 			if ok {
-				m.selected = string(i)
-				m.chosen = true
+				m.Selected = string(i)
+				m.Chosen = true
 			}
 		}
 	}
 
 	var cmd tea.Cmd
-	m.options, cmd = m.options.Update(msg)
+	m.Options, cmd = m.Options.Update(msg)
 
 	return m, cmd
-}
-
-// Table view update loop
-func tableUpdateLoop(_ tea.Msg, m Model) (tea.Model, tea.Cmd) {
-	return m, nil
-}
-
-func menuView(m Model) string {
-	return m.options.View()
-}
-
-func tableView(_ Model) string {
-	s := "\nInside the table view!!!!\n\n"
-	return s
 }

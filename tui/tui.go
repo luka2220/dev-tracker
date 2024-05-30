@@ -5,21 +5,19 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/luka2220/dev-tracker/constants"
 )
 
 // Main entry point for the TUI. Initializes the main model
 func StartTea() {
-	f, err := tea.LogToFile("debug.log", "debug")
+	var err error
+
+	constants.Logger, err = tea.LogToFile("debug.log", "debug")
 	if err != nil {
 		fmt.Printf("Unable to open log file: %v", err)
 		os.Exit(1)
 	}
-	defer f.Close()
+	defer constants.Logger.Close()
 
-	m, _ := InitProject()
-	p := tea.NewProgram(m, tea.WithAltScreen())
-	if _, err := p.Run(); err != nil {
-		fmt.Printf("Unable to start CLI: %v\n", err)
-		os.Exit(1)
-	}
+	StartMenu()
 }
