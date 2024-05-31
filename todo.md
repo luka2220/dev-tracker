@@ -1,11 +1,10 @@
 # TODOs
-- [1] Add CLI commands (in-progress):
+- [1] Add CLI commands [✅]:
     * Name the base CLI command [devtasks]?
     - Create a new development board => [devtasks init]
     - Intract with the tasks and development boards => [devtasks]
-    - View a list of all the board => [devtasks list]
 
-- [2] Add help menu for commands? The two options for building this are:
+- [2] Add help menu for commands? The two options for building this are [🕐]:
     * Add a menu to deisplay all of the options below and a text input for the user to choose an option
     - Develop custom help menu with styling... may look better visually but be more cluttered?
     - User should input numbers to do an operation
