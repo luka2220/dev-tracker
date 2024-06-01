@@ -4,7 +4,7 @@
     - Create a new development board => [devtasks init]
     - Intract with the tasks and development boards => [devtasks]
 
-- [2] Add help menu for commands? The two options for building this are [🕐]:
+- [2] Add menu for display the options for operations below [🕐]:
     * Add a menu to deisplay all of the options below and a text input for the user to choose an option
     - Develop custom help menu with styling... may look better visually but be more cluttered?
     - User should input numbers to do an operation
