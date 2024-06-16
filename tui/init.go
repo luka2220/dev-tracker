@@ -33,20 +33,35 @@ func StartProjectInitTui() {
 	}
 }
 
-type projectModelDB struct {
-	name   string
-	active bool
-}
+// NOTE: Project Initialization Type
+// projectTi (textinput.Model): textinput element for the project name
+// setGhRepoOptionTi (textinput.Model): textinput element for option to add a github repo
+// ghRepoTi (textinput.Model): textinput element for the github repo
+// setActiveBoardTi (textinput.Model): textinput element for setting board active
+// count (int): state for tracking which textinput the user is currently on
+// quitting (bool): state for quitting out of the CLI
+// projectName (string): stores the result of projectTi from user
+// setActiveBoard (bool): stores the result of setActiveBoardTi from user
+// setGithubRepo (bool): stores the result of setGhRepoOptionTi from user
+// githubRepo (string): stores the result of ghRepoTi from user
 
 type projectModel struct {
-	count            int // holds the input state
-	quitting         bool
-	projectTextInput textinput.Model
-	projectName      string
-	activeTextInput  textinput.Model
-	active           bool
-	err              error
+	projectTi         textinput.Model
+	setGhRepoOptionTi textinput.Model
+	ghRepoTi          textinput.Model
+	setActiveBoardTi  textinput.Model
+	count             int
+	quitting          bool
+	projectName       string
+	setActiveBoard    bool
+	setGithubRepo     bool
+	githubRepo        string
+	err               error
 }
+
+// NOTE: Initializes a new projectModel struct
+// - Initializes new textinputs
+// - Sets the default values for the projectModel struct
 
 func initializeModel() *projectModel {
 	tiProject := textinput.New()
@@ -58,12 +73,22 @@ func initializeModel() *projectModel {
 	tiActive.Prompt = ": "
 	tiActive.CharLimit = 1
 
+	tiGHRepoOption := textinput.New()
+	tiGHRepoOption.Prompt = ": "
+	tiGHRepoOption.CharLimit = 1
+
+	tiGHRepo := textinput.New()
+	tiGHRepo.Prompt = ": "
+	tiGHRepo.CharLimit = 50
+
 	return &projectModel{
-		count:            0,
-		quitting:         false,
-		projectTextInput: tiProject,
-		activeTextInput:  tiActive,
-		err:              nil,
+		count:             0,
+		quitting:          false,
+		projectTi:         tiProject,
+		setActiveBoardTi:  tiActive,
+		setGhRepoOptionTi: tiGHRepoOption,
+		ghRepoTi:          tiGHRepo,
+		err:               nil,
 	}
 }
 
@@ -82,18 +107,18 @@ func (m *projectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "enter":
 			if m.count == 0 {
-				m.projectName = m.projectTextInput.Value()
+				m.projectName = m.projectTi.Value()
 				m.count++
-				m.projectTextInput.Blur()
-				m.activeTextInput.Focus()
+				m.projectTi.Blur()
+				m.setActiveBoardTi.Focus()
 			} else if m.count == 1 {
-				switch m.activeTextInput.Value() {
+				switch m.setActiveBoardTi.Value() {
 				case "y":
-					m.active = true
+					m.setActiveBoard = true
 				case "n":
-					m.active = false
+					m.setActiveBoard = false
 				}
-				m.activeTextInput.Blur()
+				m.setActiveBoardTi.Blur()
 				m.count++
 
 				return m, tea.Quit
@@ -101,8 +126,10 @@ func (m *projectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	m.projectTextInput, cmd = m.projectTextInput.Update(msg)
-	m.activeTextInput, cmd = m.activeTextInput.Update(msg)
+	m.projectTi, cmd = m.projectTi.Update(msg)
+	m.setActiveBoardTi, cmd = m.setActiveBoardTi.Update(msg)
+	m.setGhRepoOptionTi, cmd = m.setGhRepoOptionTi.Update(msg)
+	m.ghRepoTi, cmd = m.ghRepoTi.Update(msg)
 
 	return m, cmd
 }
@@ -113,7 +140,7 @@ func (m *projectModel) View() string {
 		warningTextiStyle.Bold(true).Render("Only"),
 		validTextStyle.Render("'-', '_', ' '"))
 
-	s += fmt.Sprintf("What should the new board be called?%s\n", m.projectTextInput.View())
+	s += fmt.Sprintf("What should the new board be called?%s\n", m.projectTi.View())
 
 	if m.count >= 1 {
 		s += fmt.Sprintf("Created new %s to track development tasks!\n",
@@ -122,7 +149,7 @@ func (m *projectModel) View() string {
 		s += fmt.Sprintf("Do you want to set the board %s as active❓ %s%s\n",
 			confirmationTextiStyle.Render(m.projectName),
 			optionsTextStyle.Render("[y/n]"),
-			m.activeTextInput.View())
+			m.setActiveBoardTi.View())
 
 	}
 

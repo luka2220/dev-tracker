@@ -6,7 +6,8 @@
 
 - [2] Create the init TUI program [🕐]:
     * Create the project initalization cli
-    - Prompt the user to create a new development board
+    - Prompt the user to create a new development board (completed)
+    - Validate user input (progress)
     - Store in a sqlite database
 
 - [3] Add menu for display the options for operations below [🕐]:
