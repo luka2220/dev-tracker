@@ -3,6 +3,7 @@ package initialization
 import (
 	"fmt"
 	"os"
+	"regexp"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -140,6 +141,16 @@ func (m *projectModel) View() string {
 	return s
 }
 
-func ValidateProjectNameInput(input string) bool { return false }
+func ValidateProjectNameInput(input string) bool {
+	pattern := "^[a-zA-Z0-9_\\- ]+$"
+	re := regexp.MustCompile(pattern)
 
-func ValidateActiveBoardInput(input string) bool { return false }
+	return re.MatchString(input)
+}
+
+func ValidateActiveBoardInput(input string) bool {
+	pattern := "^[yYnN]$"
+	re := regexp.MustCompile(pattern)
+
+	return re.MatchString(input)
+}
