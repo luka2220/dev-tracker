@@ -5,9 +5,10 @@
     - Intract with the tasks and development boards => [devtasks]
 
 - [2] Create the init TUI program [🕐]:
-    * Create the project initalization cli
-    - Prompt the user to create a new development board (completed)
-    - Validate user input (progress)
+    * Creates the project initalization cli for creating new development boards and storing them in a database
+    - Prompt the user to create a new development board (completed) ✅
+    - Validate user input (completed) ✅
+    - Warn the user of input error (in progress) ⚠️
     - Store in a sqlite database
 
 - [3] Add menu for display the options for operations below [🕐]:
