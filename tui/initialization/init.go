@@ -1,4 +1,4 @@
-package tui
+package initialization
 
 import (
 	"fmt"
@@ -35,34 +35,24 @@ func StartProjectInitTui() {
 
 // NOTE: Project Initialization Type
 // projectTi (textinput.Model): textinput element for the project name
-// setGhRepoOptionTi (textinput.Model): textinput element for option to add a github repo
-// ghRepoTi (textinput.Model): textinput element for the github repo
 // setActiveBoardTi (textinput.Model): textinput element for setting board active
 // count (int): state for tracking which textinput the user is currently on
 // quitting (bool): state for quitting out of the CLI
 // projectName (string): stores the result of projectTi from user
 // setActiveBoard (bool): stores the result of setActiveBoardTi from user
-// setGithubRepo (bool): stores the result of setGhRepoOptionTi from user
-// githubRepo (string): stores the result of ghRepoTi from user
-
 type projectModel struct {
-	projectTi         textinput.Model
-	setGhRepoOptionTi textinput.Model
-	ghRepoTi          textinput.Model
-	setActiveBoardTi  textinput.Model
-	count             int
-	quitting          bool
-	projectName       string
-	setActiveBoard    bool
-	setGithubRepo     bool
-	githubRepo        string
-	err               error
+	projectTi        textinput.Model
+	setActiveBoardTi textinput.Model
+	count            int
+	quitting         bool
+	projectName      string
+	setActiveBoard   bool
+	err              error
 }
 
 // NOTE: Initializes a new projectModel struct
 // - Initializes new textinputs
 // - Sets the default values for the projectModel struct
-
 func initializeModel() *projectModel {
 	tiProject := textinput.New()
 	tiProject.Prompt = ": "
@@ -73,22 +63,12 @@ func initializeModel() *projectModel {
 	tiActive.Prompt = ": "
 	tiActive.CharLimit = 1
 
-	tiGHRepoOption := textinput.New()
-	tiGHRepoOption.Prompt = ": "
-	tiGHRepoOption.CharLimit = 1
-
-	tiGHRepo := textinput.New()
-	tiGHRepo.Prompt = ": "
-	tiGHRepo.CharLimit = 50
-
 	return &projectModel{
-		count:             0,
-		quitting:          false,
-		projectTi:         tiProject,
-		setActiveBoardTi:  tiActive,
-		setGhRepoOptionTi: tiGHRepoOption,
-		ghRepoTi:          tiGHRepo,
-		err:               nil,
+		count:            0,
+		quitting:         false,
+		projectTi:        tiProject,
+		setActiveBoardTi: tiActive,
+		err:              nil,
 	}
 }
 
@@ -119,7 +99,6 @@ func (m *projectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.setActiveBoard = false
 				}
 				m.setActiveBoardTi.Blur()
-				m.count++
 
 				return m, tea.Quit
 			}
@@ -128,8 +107,6 @@ func (m *projectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.projectTi, cmd = m.projectTi.Update(msg)
 	m.setActiveBoardTi, cmd = m.setActiveBoardTi.Update(msg)
-	m.setGhRepoOptionTi, cmd = m.setGhRepoOptionTi.Update(msg)
-	m.ghRepoTi, cmd = m.ghRepoTi.Update(msg)
 
 	return m, cmd
 }
@@ -142,7 +119,7 @@ func (m *projectModel) View() string {
 
 	s += fmt.Sprintf("What should the new board be called?%s\n", m.projectTi.View())
 
-	if m.count >= 1 {
+	if m.count == 1 {
 		s += fmt.Sprintf("Created new %s to track development tasks!\n",
 			validTextStyle.Render(m.projectName))
 
@@ -150,7 +127,10 @@ func (m *projectModel) View() string {
 			confirmationTextiStyle.Render(m.projectName),
 			optionsTextStyle.Render("[y/n]"),
 			m.setActiveBoardTi.View())
+	}
 
+	if m.setActiveBoard {
+		s += fmt.Sprintf("Set %s to active board!\n", validTextStyle.Render(m.projectName))
 	}
 
 	if m.quitting {
@@ -159,3 +139,7 @@ func (m *projectModel) View() string {
 
 	return s
 }
+
+func ValidateProjectNameInput(input string) bool { return false }
+
+func ValidateActiveBoardInput(input string) bool { return false }
