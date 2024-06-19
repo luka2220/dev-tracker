@@ -8,8 +8,11 @@
     * Creates the project initalization cli for creating new development boards and storing them in a database
     - Prompt the user to create a new development board (completed) ✅
     - Validate user input (completed) ✅
-    - Warn the user of input error (in progress) ⚠️
-    - Store in a sqlite database
+    - Warn the user of input error (completed) ✅
+    - Store in a sqlite database (in progress) ⚠️
+        * Create the connection to the sqlite database
+        * Create the table and schema for what each board can hold
+        * Create an entry in the db for the newly created board and it's options
 
 - [3] Add menu for display the options for operations below [🕐]:
     * Add a menu to deisplay all of the options below and a text input for the user to choose an option
