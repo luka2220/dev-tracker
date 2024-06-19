@@ -18,6 +18,8 @@ var (
 				Foreground(lipgloss.Color("#FFBF00"))
 	validTextStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#059212"))
+	errorTextStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#C80036"))
 	confirmationTextiStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#FF8F00")).
 				Italic(true)
@@ -48,7 +50,7 @@ type projectModel struct {
 	quitting         bool
 	projectName      string
 	setActiveBoard   bool
-	err              error
+	errMessage       string
 }
 
 // NOTE: Initializes a new projectModel struct
@@ -69,7 +71,6 @@ func initializeModel() *projectModel {
 		quitting:         false,
 		projectTi:        tiProject,
 		setActiveBoardTi: tiActive,
-		err:              nil,
 	}
 }
 
@@ -88,20 +89,34 @@ func (m *projectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "enter":
 			if m.count == 0 {
-				m.projectName = m.projectTi.Value()
-				m.count++
-				m.projectTi.Blur()
-				m.setActiveBoardTi.Focus()
+				projectNameValid := ValidateProjectNameInput(m.projectTi.Value())
+
+				if projectNameValid {
+					m.projectName = m.projectTi.Value()
+					m.count++
+					m.projectTi.Blur()
+					m.setActiveBoardTi.Focus()
+				} else {
+					m.errMessage = "PROJECT_NAME"
+					m.projectTi.Reset()
+				}
+
 			} else if m.count == 1 {
 				switch m.setActiveBoardTi.Value() {
-				case "y":
+				case "y", "Y":
 					m.setActiveBoard = true
-				case "n":
-					m.setActiveBoard = false
-				}
-				m.setActiveBoardTi.Blur()
+					m.setActiveBoardTi.Blur()
+					return m, tea.Quit
 
-				return m, tea.Quit
+				case "n", "N":
+					m.setActiveBoard = false
+					m.setActiveBoardTi.Blur()
+					return m, tea.Quit
+
+				default:
+					m.errMessage = "ACTIVE_BOARD"
+					m.setActiveBoardTi.Reset()
+				}
 			}
 		}
 	}
@@ -118,11 +133,23 @@ func (m *projectModel) View() string {
 		warningTextiStyle.Bold(true).Render("Only"),
 		validTextStyle.Render("'-', '_', ' '"))
 
+	if m.errMessage == "PROJECT_NAME" {
+		s += fmt.Sprintf("❌ %s, only use alpha-numeric characters or %s for new board names.\n",
+			errorTextStyle.Render("Invalid Name"),
+			validTextStyle.Render("'-', '_', ' '"))
+	}
+
 	s += fmt.Sprintf("What should the new board be called?%s\n", m.projectTi.View())
 
 	if m.count == 1 {
 		s += fmt.Sprintf("Created new %s to track development tasks!\n",
 			validTextStyle.Render(m.projectName))
+
+		if m.errMessage == "ACTIVE_BOARD" {
+			s += fmt.Sprintf("❌ %s, only use characters %s to indicate option.\n",
+				errorTextStyle.Render("Invalid Input"),
+				validTextStyle.Render("'y', 'Y', 'n', 'N'"))
+		}
 
 		s += fmt.Sprintf("Do you want to set the board %s as active❓ %s%s\n",
 			confirmationTextiStyle.Render(m.projectName),
@@ -143,13 +170,6 @@ func (m *projectModel) View() string {
 
 func ValidateProjectNameInput(input string) bool {
 	pattern := "^[a-zA-Z0-9_\\- ]+$"
-	re := regexp.MustCompile(pattern)
-
-	return re.MatchString(input)
-}
-
-func ValidateActiveBoardInput(input string) bool {
-	pattern := "^[yYnN]$"
 	re := regexp.MustCompile(pattern)
 
 	return re.MatchString(input)
