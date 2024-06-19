@@ -26,3 +26,7 @@ init: build
 clean:
 	go clean
 	rm ./bin/devtasks
+
+# Run the initalization tui test cases
+test-init:
+	go test ./tui/initialization -v

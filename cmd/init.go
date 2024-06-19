@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/luka2220/devtasks/tui"
+	"github.com/luka2220/devtasks/tui/initialization"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +17,7 @@ Propmts for the new board name and wether to set it as
 the active board.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		tui.StartProjectInitTui()
+		initialization.StartProjectInitTui()
 	},
 }
 
