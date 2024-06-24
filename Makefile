@@ -30,3 +30,11 @@ clean:
 # Run the initalization tui test cases
 test-init:
 	go test ./tui/initialization -v
+
+# Run the database test cases
+test-db:
+	go test ./database
+
+# Display the database log file
+log-db:
+	cat ./database/db.log
