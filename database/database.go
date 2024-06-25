@@ -77,20 +77,34 @@ func CreateNewBoardDB(name string, active bool) bool {
 	if active {
 		var activeBoard board
 
-		// Retrieve the currently active board
 		db.Raw("SELECT * FROM boards WHERE active = ?", 1).Find(&activeBoard)
-
-		var log string
 
 		// Check if any result were returned from the db
 		if activeBoard.ID == 0 {
-			log = fmt.Sprintf("No records have an active board")
+			newBoard := board{Name: name, Active: active}
+
+			result := db.Create(&newBoard)
+			if result.Error != nil {
+				out := fmt.Sprintf("An error occured creating a new board into the database: %v", result.Error)
+				panic(out)
+			}
+
+			return true
 		} else {
-			log = fmt.Sprintf("id=%d, name=%s, active=%v", activeBoard.ID, activeBoard.Name, activeBoard.Active)
+			log := fmt.Sprintf("id=%d, name=%s, active=%v", activeBoard.ID, activeBoard.Name, activeBoard.Active)
+			utils.LogDB(log)
+
+			return false
+		}
+	} else {
+		newBoard := board{Name: name, Active: active}
+
+		result := db.Create(&newBoard)
+		if result.Error != nil {
+			out := fmt.Sprintf("An error occured creating a new board into the database: %v", result.Error)
+			panic(out)
 		}
 
-		utils.LogDB(log)
+		return true
 	}
-
-	return true
 }

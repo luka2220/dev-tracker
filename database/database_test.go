@@ -7,9 +7,9 @@ import (
 func TestCreateNewBoardDB(t *testing.T) {
 	OpenTestDBConnection()
 
-	res := CreateNewBoardDB("json-parser", true)
-
-	if !res {
+	// TODO: Write test cases based on results from DB
+	result := CreateNewBoardDB("json-parser", true)
+	if !result {
 		t.Fail()
 		t.Error("Board not stored in DB")
 	}
