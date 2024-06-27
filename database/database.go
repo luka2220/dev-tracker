@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/luka2220/devtasks/utils"
+	//"github.com/luka2220/devtasks/utils"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -12,10 +12,10 @@ import (
 var db *gorm.DB
 
 // NOTE: Defining the fields for the Board database model
-// A board can have many tasks (one to many relationship)
-type board struct {
+// A Board can have many tasks (one to many relationship)
+type Board struct {
 	gorm.Model
-	Tasks     []task    `gorm:"foreignKey:TaskId"` // All tasks for the board
+	Tasks     []Task    `gorm:"foreignKey:TaskId"` // All tasks for the board
 	ID        uint      `gorm:"primaryKey"`        // Primary key & board id
 	Name      string    // Hold the name for each board
 	Active    bool      // Indicates if the board is active or not
@@ -24,8 +24,8 @@ type board struct {
 }
 
 // NOTE: Defining fields for each Boards Task model
-// A task can only have one board (one to many relationship)
-type task struct {
+// A Task can only have one board (one to many relationship)
+type Task struct {
 	gorm.Model
 	ID          uint   `gorm:"primaryKey"` // Primary key & task id
 	Tag         string // Holds the tag for each task
@@ -44,7 +44,7 @@ func OpenDBConnection() {
 		panic("Error opening connection to the database")
 	}
 
-	dbconn.AutoMigrate(&board{}, &task{})
+	dbconn.AutoMigrate(&Board{}, &Task{})
 
 	fmt.Println("Successfully opened DB")
 
@@ -58,7 +58,7 @@ func OpenTestDBConnection() {
 		panic("Error opening connection to the database")
 	}
 
-	dbconn.AutoMigrate(&board{}, &task{})
+	dbconn.AutoMigrate(&Board{}, &Task{})
 
 	fmt.Println("Successfully opened DB")
 
@@ -66,30 +66,30 @@ func OpenTestDBConnection() {
 }
 
 // NOTE: Creates a new board record in the db
-
-// TODO:Function Operations
-// - Check if the DB is empty (if so make the board active)
-// - Figure out the id?
-// - Store the record in the DB
-// - Return a bool based on the store operation result
+// TODO: Add better error handling for caller
 func CreateNewBoardDB(name string, active bool) bool {
+	var boards []Board
 
-	if active {
-		var activeBoard board
+	records := db.Raw("SELECT id, name, active FROM boards").Find(&boards)
+	if records.Error != nil {
+		out := fmt.Sprintf("An error occured getting records from the db: %v", records.Error)
+		panic(out)
+	}
 
-		// Retrieve the currently active board
-		db.Raw("SELECT * FROM boards WHERE active = ?", 1).Find(&activeBoard)
-
-		var log string
-
-		// Check if any result were returned from the db
-		if activeBoard.ID == 0 {
-			log = fmt.Sprintf("No records have an active board")
-		} else {
-			log = fmt.Sprintf("id=%d, name=%s, active=%v", activeBoard.ID, activeBoard.Name, activeBoard.Active)
+	for _, board := range boards {
+		if board.Name == name {
+			panic("Board name already exists in db")
 		}
 
-		utils.LogDB(log)
+		if active && board.Active {
+			db.Save(&Board{ID: board.ID, Name: board.Name, Active: false})
+		}
+	}
+
+	result := db.Create(&Board{Name: name, Active: active})
+	if result.Error != nil {
+		out := fmt.Sprintf("An error occured creating a new board record in the db: %v", result.Error)
+		panic(out)
 	}
 
 	return true
