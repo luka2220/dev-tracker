@@ -67,18 +67,18 @@ func OpenTestDBConnection() {
 
 // NOTE: Creates a new board record in the db
 // TODO: Add better error handling for caller
-func CreateNewBoardDB(name string, active bool) bool {
+// TODO: Add
+func CreateNewBoardDB(name string, active bool) error {
 	var boards []Board
 
 	records := db.Raw("SELECT id, name, active FROM boards").Find(&boards)
 	if records.Error != nil {
-		out := fmt.Sprintf("An error occured getting records from the db: %v", records.Error)
-		panic(out)
+		return fmt.Errorf("An error occured getting records from the db: %v", records.Error)
 	}
 
 	for _, board := range boards {
 		if board.Name == name {
-			panic("Board name already exists in db")
+			return fmt.Errorf("Board name already exists in db...")
 		}
 
 		if active && board.Active {
@@ -88,9 +88,8 @@ func CreateNewBoardDB(name string, active bool) bool {
 
 	result := db.Create(&Board{Name: name, Active: active})
 	if result.Error != nil {
-		out := fmt.Sprintf("An error occured creating a new board record in the db: %v", result.Error)
-		panic(out)
+		return fmt.Errorf("An error occured creating a new board record in the db: %v", result.Error)
 	}
 
-	return true
+	return nil
 }
