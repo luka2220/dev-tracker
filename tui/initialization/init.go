@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/luka2220/devtasks/constants"
+	"github.com/luka2220/devtasks/database"
 )
 
 var (
@@ -46,7 +47,7 @@ func StartProjectInitTui() {
 type projectModel struct {
 	projectTi        textinput.Model
 	setActiveBoardTi textinput.Model
-	count            int
+	state            int
 	quitting         bool
 	projectName      string
 	setActiveBoard   bool
@@ -67,7 +68,7 @@ func initializeModel() *projectModel {
 	tiActive.CharLimit = 1
 
 	return &projectModel{
-		count:            0,
+		state:            0,
 		quitting:         false,
 		projectTi:        tiProject,
 		setActiveBoardTi: tiActive,
@@ -88,12 +89,12 @@ func (m *projectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.quitting = true
 			return m, tea.Quit
 		case "enter":
-			if m.count == 0 {
+			if m.state == 0 {
 				projectNameValid := ValidateProjectNameInput(m.projectTi.Value())
 
 				if projectNameValid {
 					m.projectName = m.projectTi.Value()
-					m.count++
+					m.state++
 					m.projectTi.Blur()
 					m.setActiveBoardTi.Focus()
 				} else {
@@ -101,22 +102,31 @@ func (m *projectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.projectTi.Reset()
 				}
 
-			} else if m.count == 1 {
+			} else if m.state == 1 {
 				switch m.setActiveBoardTi.Value() {
 				case "y", "Y":
 					m.setActiveBoard = true
 					m.setActiveBoardTi.Blur()
-					return m, tea.Quit
+					m.state += 1
 
 				case "n", "N":
 					m.setActiveBoard = false
 					m.setActiveBoardTi.Blur()
-					return m, tea.Quit
+					m.state += 1
 
 				default:
 					m.errMessage = "ACTIVE_BOARD"
 					m.setActiveBoardTi.Reset()
 				}
+			} else if m.state == 2 {
+				err := database.CreateNewBoardDB(m.projectName, m.setActiveBoard)
+				if err != nil {
+					//panic(err)
+					m.errMessage = "DATABASE"
+				}
+
+				m.quitting = true
+				return m, tea.Quit
 			}
 		}
 	}
@@ -141,7 +151,7 @@ func (m *projectModel) View() string {
 
 	s += fmt.Sprintf("What should the new board be called?%s\n", m.projectTi.View())
 
-	if m.count == 1 {
+	if m.state == 1 {
 		s += fmt.Sprintf("Created new %s to track development tasks!\n",
 			validTextStyle.Render(m.projectName))
 
@@ -159,6 +169,14 @@ func (m *projectModel) View() string {
 
 	if m.setActiveBoard {
 		s += fmt.Sprintf("Set %s to active board!\n", validTextStyle.Render(m.projectName))
+	}
+
+	if m.state == 2 {
+		if m.errMessage == "DATABASE" {
+			s += fmt.Sprintf("❌ A %s occured storing the newly created board. Please try again...\n",
+				errorTextStyle.Render("database error"))
+		}
+		s += fmt.Sprintf("%s record created in db. The board is good to use!\n", validTextStyle.Render(m.projectName))
 	}
 
 	if m.quitting {

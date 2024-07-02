@@ -66,8 +66,6 @@ func OpenTestDBConnection() {
 }
 
 // NOTE: Creates a new board record in the db
-// TODO: Add better error handling for caller
-// TODO: Add
 func CreateNewBoardDB(name string, active bool) error {
 	var boards []Board
 
