@@ -144,39 +144,17 @@ func (m *projectModel) View() string {
 		validTextStyle.Render("'-', '_', ' '"))
 
 	if m.errMessage == "PROJECT_NAME" {
-		s += fmt.Sprintf("❌ %s, only use alpha-numeric characters or %s for new board names.\n",
-			errorTextStyle.Render("Invalid Name"),
-			validTextStyle.Render("'-', '_', ' '"))
+		s += displayProjectNameError()
 	}
 
 	s += fmt.Sprintf("What should the new board be called?%s\n", m.projectTi.View())
 
-	if m.state == 1 {
-		s += fmt.Sprintf("Created new %s to track development tasks!\n",
-			validTextStyle.Render(m.projectName))
-
-		if m.errMessage == "ACTIVE_BOARD" {
-			s += fmt.Sprintf("❌ %s, only use characters %s to indicate option.\n",
-				errorTextStyle.Render("Invalid Input"),
-				validTextStyle.Render("'y', 'Y', 'n', 'N'"))
-		}
-
-		s += fmt.Sprintf("Do you want to set the board %s as active❓ %s%s\n",
-			confirmationTextiStyle.Render(m.projectName),
-			optionsTextStyle.Render("[y/n]"),
-			m.setActiveBoardTi.View())
+	if m.state >= 1 {
+		s += displayActiveBoardPrompt(m)
 	}
 
-	if m.setActiveBoard {
-		s += fmt.Sprintf("Set %s to active board!\n", validTextStyle.Render(m.projectName))
-	}
-
-	if m.state == 2 {
-		if m.errMessage == "DATABASE" {
-			s += fmt.Sprintf("❌ A %s occured storing the newly created board. Please try again...\n",
-				errorTextStyle.Render("database error"))
-		}
-		s += fmt.Sprintf("%s record created in db. The board is good to use!\n", validTextStyle.Render(m.projectName))
+	if m.state >= 2 {
+		s += displayBoardDatabaseStatus(m)
 	}
 
 	if m.quitting {
@@ -186,6 +164,50 @@ func (m *projectModel) View() string {
 	return s
 }
 
+// Helper function for the input error for the project name
+func displayProjectNameError() string {
+	return fmt.Sprintf("❌ %s, only use alpha-numeric characters or %s for new board names.\n",
+		errorTextStyle.Render("Invalid Name"),
+		validTextStyle.Render("'-', '_', ' '"))
+}
+
+// Helper function for display all of the prompt logic and error handling for setting an
+// board active or not
+func displayActiveBoardPrompt(m *projectModel) string {
+	s := fmt.Sprintf("Created new %s to track development tasks!\n",
+		validTextStyle.Render(m.projectName))
+
+	if m.errMessage == "ACTIVE_BOARD" {
+		s += fmt.Sprintf("❌ %s, only use characters %s to indicate option.\n",
+			errorTextStyle.Render("Invalid Input"),
+			validTextStyle.Render("'y', 'Y', 'n', 'N'"))
+	}
+
+	s += fmt.Sprintf("Do you want to set the board %s as active❓ %s%s\n",
+		confirmationTextiStyle.Render(m.projectName),
+		optionsTextStyle.Render("[y/n]"),
+		m.setActiveBoardTi.View())
+
+	if m.setActiveBoard {
+		s += fmt.Sprintf("Set %s to active board!\n", validTextStyle.Render(m.projectName))
+	}
+
+	return s
+}
+
+// Helper function for displaying successful storage of new board, or any errors
+func displayBoardDatabaseStatus(m *projectModel) string {
+	var s string
+	if m.errMessage == "DATABASE" {
+		s = fmt.Sprintf("❌ A %s occured storing the newly created board. Please try again...\n",
+			errorTextStyle.Render("database error"))
+	}
+	s = fmt.Sprintf("%s record created in db. The board is good to use!\n", validTextStyle.Render(m.projectName))
+
+	return s
+}
+
+// Validate input for project name with regular expressions
 func ValidateProjectNameInput(input string) bool {
 	pattern := "^[a-zA-Z0-9_\\- ]+$"
 	re := regexp.MustCompile(pattern)
