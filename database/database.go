@@ -91,3 +91,21 @@ func CreateNewBoardDB(name string, active bool) error {
 
 	return nil
 }
+
+// NOTE: Checks if the given board name exists in the database
+func IsNameInDatabase(name string) (bool, error) {
+	var boards []Board
+
+	records := db.Raw("SELECT name FROM boards").Find(&boards)
+	if records.Error != nil {
+		return false, fmt.Errorf("Error getting board names from database: %v", records.Error)
+	}
+
+	for _, board := range boards {
+		if board.Name == name {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
