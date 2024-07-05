@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	//"github.com/luka2220/devtasks/utils"
+	"github.com/luka2220/devtasks/utils"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -88,6 +88,9 @@ func CreateNewBoardDB(name string, active bool) error {
 	if result.Error != nil {
 		return fmt.Errorf("An error occured creating a new board record in the db: %v", result.Error)
 	}
+
+	// Create log entry for newly stored board
+	utils.LogDB(fmt.Sprintf("New board created. name=%s, active=%v", name, active))
 
 	return nil
 }

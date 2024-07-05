@@ -24,7 +24,7 @@ func IsEmptyStruct(x interface{}) bool {
 
 // NOTE: Utility function for database logging
 func LogDB(msg string) {
-	file, err := os.OpenFile("../database/db.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	file, err := os.OpenFile("./database/db.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		msg := fmt.Sprintf("Error opening db.log file: %v", err)
 		panic(msg)

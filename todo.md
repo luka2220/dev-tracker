@@ -10,13 +10,13 @@
     - Validate user input (completed) ✅
     - Warn the user of input error (completed) ✅
     - Store in a sqlite database (completed) ✅
-        * Create the connection to the sqlite database
-        * Create the table and schema for what each board can hold
-        * Create an entry in the db for the newly created board and it's options
+        * Create the connection to the sqlite database ✅
+        * Create the table and schema for what each board can hold ✅
+        * Create an entry in the db for the newly created board and it's options ✅
     - Store users initialization board into the databse (in progress) ⚠️
-        * Take the inputs and format them correctly to be stored in the db
-        * Update the project model state to make it clear when we should be storing to the db
-        * Respond to the user with any errors that occur with proper info
+        * Take the inputs and format them correctly to be stored in the db ✅
+        * Update the project model state to make it clear when we should be storing to the db ✅
+        * Respond to the user with any errors that occur with proper info ✅
         * Test to validate the board was correctly stored in the database
         * Create a log entry to db.log whenever a new board record is created in the db
         * Create a sepreate db-error.log to write database errors to
