@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	//"github.com/luka2220/devtasks/utils"
+	"github.com/luka2220/devtasks/utils"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -66,8 +66,6 @@ func OpenTestDBConnection() {
 }
 
 // NOTE: Creates a new board record in the db
-// TODO: Add better error handling for caller
-// TODO: Add
 func CreateNewBoardDB(name string, active bool) error {
 	var boards []Board
 
@@ -91,5 +89,26 @@ func CreateNewBoardDB(name string, active bool) error {
 		return fmt.Errorf("An error occured creating a new board record in the db: %v", result.Error)
 	}
 
+	// Create log entry for newly stored board
+	utils.LogDB(fmt.Sprintf("New board created. name=%s, active=%v", name, active))
+
 	return nil
+}
+
+// NOTE: Checks if the given board name exists in the database
+func IsNameInDatabase(name string) (bool, error) {
+	var boards []Board
+
+	records := db.Raw("SELECT name FROM boards").Find(&boards)
+	if records.Error != nil {
+		return false, fmt.Errorf("Error getting board names from database: %v", records.Error)
+	}
+
+	for _, board := range boards {
+		if board.Name == name {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
