@@ -10,19 +10,19 @@
     - Validate user input (completed) ✅
     - Warn the user of input error (completed) ✅
     - Store in a sqlite database (completed) ✅
-        * Create the connection to the sqlite database ✅
-        * Create the table and schema for what each board can hold ✅
-        * Create an entry in the db for the newly created board and it's options ✅
-    - Store users initialization board into the databse (in progress) ⚠️
-        * Take the inputs and format them correctly to be stored in the db ✅
-        * Update the project model state to make it clear when we should be storing to the db ✅
-        * Respond to the user with any errors that occur with proper info ✅
-        * Test to validate the board was correctly stored in the database
-        * Create a log entry to db.log whenever a new board record is created in the db
-        * Create a sepreate db-error.log to write database errors to
+        * Create the connection to the sqlite database - done
+        * Create the table and schema for what each board can hold - done
+        * Create an entry in the db for the newly created board and it's options - done
+    - Store users initialization board into the databse (completed) ✅
+        * Take the inputs and format them correctly to be stored in the db - done
+        * Update the project model state to make it clear when we should be storing to the db - done
+        * Respond to the user with any errors that occur with proper info - done
+        * Test to validate the board was correctly stored in the database - done
+        * Create a log entry to db.log whenever a new board record is created in the db - done
+        * Create a sepreate db-error.log to write database errors to - done
 
 - [3] Add menu for display the options for operations below [🕐]:
-    * Add a menu to deisplay all of the options below and a text input for the user to choose an option
+    * Add a menu to display all of the options below and a text input for the user to choose an option
     - Develop custom help menu with styling... may look better visually but be more cluttered?
     - User should input numbers to do an operation
     - The menu options should be:

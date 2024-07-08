@@ -6,10 +6,18 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/luka2220/devtasks/constants"
+	"github.com/luka2220/devtasks/database"
 )
 
+// Start the tui app associated with the currently active board
 func StartDevTaskBoard() {
+	var err error
 	m := &devBoardModel{}
+	m.board, err = database.GetCurrentActiveBoard()
+	m.quitting = false
+	if err != nil {
+		panic(err)
+	}
 	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
 		constants.Logger.WriteString(fmt.Sprintf("Error starting dev task board tui: %v", err))
@@ -18,6 +26,7 @@ func StartDevTaskBoard() {
 }
 
 type devBoardModel struct {
+	board    database.Board
 	quitting bool
 	option   int
 }
@@ -40,7 +49,7 @@ func (m *devBoardModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *devBoardModel) View() string {
-	s := "Development Task Board TUI started 💪"
+	s := fmt.Sprintf("Active Board: %s", m.board.Name)
 
 	if m.quitting {
 		s += "\n\nSee you next time! 👋\n"
