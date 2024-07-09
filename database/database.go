@@ -2,9 +2,10 @@ package database
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"time"
 
-	"github.com/luka2220/devtasks/utils"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -87,7 +88,7 @@ func CreateNewBoardDB(name string, active bool) error {
 	}
 
 	// Create log entry for newly stored board
-	utils.LogDB(fmt.Sprintf("New board created. name=%s, active=%v", name, active))
+	LogDB(fmt.Sprintf("New board created. name=%s, active=%v", name, active))
 
 	return nil
 }
@@ -124,3 +125,19 @@ func GetActiveBoard() (Board, error) {
 
 // NOTE: Creates a new task in the currently active board
 func CreateNewDevelopmentTask() {}
+
+// NOTE: Utility function for database logging
+func LogDB(msg string) {
+	file, err := os.OpenFile("./database/db.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		msg := fmt.Sprintf("Error opening db.log file: %v", err)
+		panic(msg)
+	}
+
+	defer file.Close()
+
+	log.SetOutput(file)
+	log.SetFlags(log.Ldate | log.Ltime)
+
+	log.Println(msg)
+}
