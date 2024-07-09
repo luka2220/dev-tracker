@@ -12,11 +12,11 @@ tidy: fmt
 
 # Build the executable binary for the application
 build:
-	go build -o bin/
+	@go build -o bin/
 
 # Run the root command 
 root: build
-	./bin/devtasks
+	@./bin/devtasks
 
 # Run the project init command
 init: build 

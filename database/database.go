@@ -45,9 +45,6 @@ func OpenDBConnection() {
 	}
 
 	dbconn.AutoMigrate(&Board{}, &Task{})
-
-	fmt.Println("Successfully opened DB")
-
 	db = dbconn
 }
 
@@ -112,3 +109,18 @@ func IsNameInDatabase(name string) (bool, error) {
 
 	return false, nil
 }
+
+// NOTE: Returns the currently active board from the db
+func GetActiveBoard() (Board, error) {
+	var board Board
+
+	record := db.First(&board, "active = ?", "1")
+	if record.Error != nil {
+		return board, fmt.Errorf("Error getting active record from database: %v", record.Error)
+	}
+
+	return board, nil
+}
+
+// NOTE: Creates a new task in the currently active board
+func CreateNewDevelopmentTask() {}
