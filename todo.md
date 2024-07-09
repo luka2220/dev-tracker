@@ -23,8 +23,7 @@
 
 - [3] Add menu for display the options for operations below [🕐]:
     * Add a menu to display all of the options below and a text input for the user to choose an option
-    - Develop custom help menu with styling... may look better visually but be more cluttered?
-    - User should input numbers to do an operation
+    - Set the currently active board from the database to operate on (completed) ✅
     - The menu options should be:
         * [1] create new task -> create a new task for the current development board
         * [2] update/check task -> update or check a task for the current development board

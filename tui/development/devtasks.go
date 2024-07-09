@@ -13,7 +13,7 @@ import (
 func StartDevTaskBoard() {
 	var err error
 	m := &devBoardModel{}
-	m.board, err = database.GetCurrentActiveBoard()
+	m.board, err = database.GetActiveBoard()
 	m.quitting = false
 	if err != nil {
 		panic(err)

@@ -111,7 +111,7 @@ func IsNameInDatabase(name string) (bool, error) {
 }
 
 // NOTE: Returns the currently active board from the db
-func GetCurrentActiveBoard() (Board, error) {
+func GetActiveBoard() (Board, error) {
 	var board Board
 
 	record := db.First(&board, "active = ?", "1")
@@ -121,3 +121,6 @@ func GetCurrentActiveBoard() (Board, error) {
 
 	return board, nil
 }
+
+// NOTE: Creates a new task in the currently active board
+func CreateNewDevelopmentTask() {}
