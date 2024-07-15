@@ -18,10 +18,6 @@ build:
 root: build
 	@./bin/devtasks
 
-# Run the project init command
-init: build 
-	./bin/devtasks init
-
 # Clean project files and remove current binary in ./bin
 clean:
 	go clean
