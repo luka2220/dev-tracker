@@ -2,13 +2,11 @@ package initialization
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/luka2220/devtasks/constants"
 	"github.com/luka2220/devtasks/database"
 )
 
@@ -27,15 +25,6 @@ var (
 	optionsTextStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#AF47D2"))
 )
-
-func StartProjectInitTui() {
-	m := initializeModel()
-	p := tea.NewProgram(m)
-	if _, err := p.Run(); err != nil {
-		constants.Logger.WriteString(fmt.Sprintf("Error starting project init tui: %v", err))
-		os.Exit(1)
-	}
-}
 
 // NOTE: Project Initialization Type
 // projectTi (textinput.Model): textinput element for the project name
@@ -58,7 +47,7 @@ type projectModel struct {
 // NOTE: Initializes a new projectModel struct
 // - Initializes new textinputs
 // - Sets the default values for the projectModel struct
-func initializeModel() *projectModel {
+func StartInitModel() *projectModel {
 	tiProject := textinput.New()
 	tiProject.Prompt = ": "
 	tiProject.Focus()

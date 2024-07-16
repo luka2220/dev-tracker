@@ -2,27 +2,22 @@ package development
 
 import (
 	"fmt"
-	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/luka2220/devtasks/constants"
 	"github.com/luka2220/devtasks/database"
 )
 
-// Start the tui app associated with the currently active board
-func StartDevTaskBoard() {
+func StartManageModel() *devBoardModel {
 	var err error
+
 	m := &devBoardModel{}
 	m.board, err = database.GetActiveBoard()
 	m.quitting = false
 	if err != nil {
 		panic(err)
 	}
-	p := tea.NewProgram(m)
-	if _, err := p.Run(); err != nil {
-		constants.Logger.WriteString(fmt.Sprintf("Error starting dev task board tui: %v", err))
-		os.Exit(1)
-	}
+
+	return m
 }
 
 type devBoardModel struct {

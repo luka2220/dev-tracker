@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/luka2220/devtasks/tui/development"
+	"github.com/luka2220/devtasks/tui"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +20,7 @@ NOTE: If the are currently no boards created, you will
 be notified and the program will exit.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		development.StartDevTaskBoard()
+		tui.StartRootTui()
 	},
 }
 
