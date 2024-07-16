@@ -8,6 +8,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/luka2220/devtasks/constants"
+	"github.com/luka2220/devtasks/tui/development"
+	"github.com/luka2220/devtasks/tui/initialization"
 )
 
 const (
@@ -28,7 +30,7 @@ func (i item) Title() string       { return i.title }
 func (i item) Description() string { return i.desc }
 func (i item) FilterValue() string { return i.title }
 
-func initializeRootTui() *rootModel {
+func InitializeRootTui() *rootModel {
 	items := []list.Item{
 		item{title: "Initialize", desc: "initalize a new board for development tracking"},
 		item{title: "Manage", desc: "manage any existing boards"},
@@ -42,7 +44,7 @@ func initializeRootTui() *rootModel {
 }
 
 func StartRootTui() {
-	m := initializeRootTui()
+	m := InitializeRootTui()
 
 	p := tea.NewProgram(m, tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
@@ -56,7 +58,6 @@ type rootModel struct {
 	quitting    bool
 	activeModel activeModelIdx
 	menuList    list.Model
-	test        string
 }
 
 func (m *rootModel) Init() tea.Cmd {
@@ -64,6 +65,8 @@ func (m *rootModel) Init() tea.Cmd {
 }
 
 func (m *rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -71,15 +74,24 @@ func (m *rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.quitting = true
 			return m, tea.Quit
 		case "enter":
-			m.test = m.menuList.SelectedItem().FilterValue()
-			// Call some helper function to set the active model state
+			v := m.menuList.SelectedItem().FilterValue()
+			m.setActiveModel(v)
 		}
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
 		m.menuList.SetSize(msg.Width-h, msg.Height-v)
 	}
 
-	var cmd tea.Cmd
+	if m.activeModel == initBoardModelIdx {
+		// Start the init board bubble tea model
+		return initialization.StartInitModel(), cmd
+	}
+
+	if m.activeModel == manageBoardModelIdx {
+		// start the manage board bubble tea model
+		return development.StartManageModel(), cmd
+	}
+
 	m.menuList, cmd = m.menuList.Update(msg)
 	return m, cmd
 }
