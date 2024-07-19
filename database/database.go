@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"log"
 	"log/slog"
 	"os"
 	"time"
