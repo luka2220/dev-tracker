@@ -15,9 +15,3 @@ func TestCreateNewBoardDB(t *testing.T) {
 	}
 
 }
-
-func TestCreateDevelopmentTask(t *testing.T) {
-	OpenDBConnection()
-
-	// Test the function for createing a new development task
-}

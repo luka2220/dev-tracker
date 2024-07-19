@@ -7,6 +7,12 @@ import (
 	"github.com/luka2220/devtasks/database"
 )
 
+type devBoardModel struct {
+	board    database.Board
+	quitting bool
+	option   int
+}
+
 func StartManageModel() *devBoardModel {
 	var err error
 
@@ -18,12 +24,6 @@ func StartManageModel() *devBoardModel {
 	}
 
 	return m
-}
-
-type devBoardModel struct {
-	board    database.Board
-	quitting bool
-	option   int
 }
 
 func (m *devBoardModel) Init() tea.Cmd {

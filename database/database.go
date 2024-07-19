@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"time"
 
@@ -87,8 +88,8 @@ func CreateNewBoardDB(name string, active bool) error {
 		return fmt.Errorf("An error occured creating a new board record in the db: %v", result.Error)
 	}
 
-	// Create log entry for newly stored board
-	LogDB(fmt.Sprintf("New board created. name=%s, active=%v", name, active))
+	// Log the newly created board name and active state
+	LogDBSlog(fmt.Sprintf("New board created. name=%s, active=%v", name, active))
 
 	return nil
 }
@@ -126,8 +127,8 @@ func GetActiveBoard() (Board, error) {
 // NOTE: Creates a new task in the currently active board
 func CreateNewDevelopmentTask() {}
 
-// NOTE: Utility function for database logging
-func LogDB(msg string) {
+// NOTE: Database logging helper
+func LogDBSlog(msg string) {
 	file, err := os.OpenFile("./database/db.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		msg := fmt.Sprintf("Error opening db.log file: %v", err)
@@ -136,8 +137,9 @@ func LogDB(msg string) {
 
 	defer file.Close()
 
-	log.SetOutput(file)
-	log.SetFlags(log.Ldate | log.Ltime)
+	logger := slog.New(slog.NewTextHandler(file, &slog.HandlerOptions{}))
+	slog.SetDefault(logger)
 
-	log.Println(msg)
+	logMsg := msg + " (slog)"
+	slog.Info(logMsg)
 }
