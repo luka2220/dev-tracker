@@ -15,7 +15,7 @@ build:
 	@go build -o bin/
 
 # Run the root command 
-root: build
+run: build
 	@./bin/devtasks
 
 # Clean project files and remove current binary in ./bin

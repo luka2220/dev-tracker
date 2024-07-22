@@ -7,7 +7,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/luka2220/devtasks/constants"
 	"github.com/luka2220/devtasks/tui/development"
 	"github.com/luka2220/devtasks/tui/initialization"
 )
@@ -48,8 +47,9 @@ func StartRootTui() {
 
 	p := tea.NewProgram(m, tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
-		constants.Logger.WriteString(fmt.Sprintf("Error starting dev task board tui: %v", err))
 		os.Exit(1)
+		msg := fmt.Sprintf("Error starting the dev tracker application: %v", err)
+		panic(msg)
 	}
 }
 

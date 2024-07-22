@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"log"
 	"log/slog"
 	"os"
 	"time"
@@ -58,8 +57,6 @@ func OpenTestDBConnection() {
 	}
 
 	dbconn.AutoMigrate(&Board{}, &Task{})
-
-	fmt.Println("Successfully opened DB")
 
 	db = dbconn
 }
@@ -125,7 +122,7 @@ func GetActiveBoard() (Board, error) {
 }
 
 // NOTE: Creates a new task in the currently active board
-func CreateNewDevelopmentTask() {}
+// func CreateNewDevelopmentTask() {}
 
 // NOTE: Database logging helper
 func LogDBSlog(msg string) {
